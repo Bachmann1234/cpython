@@ -11793,6 +11793,17 @@ unicode_isnumeric(PyObject *self)
     return PyBool_FromLong(1);
 }
 
+
+int
+char_is_emoji(Py_UCS4 b)
+{
+   return ((b >= 0x1F600 && b <= 0x1F64F) ||
+           (b >= 0x1F300 && b <= 0x1F5FF) ||
+           (b >= 0x1F680 && b <= 0x1F6FF) ||
+           (b >= 0x2600 && b <= 0x26FF) ||
+           (b >= 0x2700 && b <= 0x27BF));
+}
+
 int
 PyUnicode_IsIdentifier(PyObject *self)
 {
@@ -11820,12 +11831,14 @@ PyUnicode_IsIdentifier(PyObject *self)
        to check just for these, except that _ must be allowed
        as starting an identifier.  */
     first = PyUnicode_READ(kind, data, 0);
-//    if (!_PyUnicode_IsXidStart(first) && first != 0x5F /* LOW LINE */)
-//        return 0;
-//
-//    for (i = 1; i < PyUnicode_GET_LENGTH(self); i++)
-//        if (!_PyUnicode_IsXidContinue(PyUnicode_READ(kind, data, i)))
-//            return 0;
+    if (!_PyUnicode_IsXidStart(first) && first != 0x5F && !char_is_emoji(first) /* LOW LINE */)
+        return 0;
+    Py_UCS4 next;
+    for (i = 1; i < PyUnicode_GET_LENGTH(self); i++) {
+        next = PyUnicode_READ(kind, data, i);
+        if (!_PyUnicode_IsXidContinue(next) && !char_is_emoji(next))
+            return 0;
+    }
     return 1;
 }
 

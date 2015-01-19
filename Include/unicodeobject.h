@@ -2068,6 +2068,7 @@ PyAPI_FUNC(int) _PyUnicode_HasNULChars(PyObject *);
 
 /* Checks whether argument is a valid identifier. */
 
+int char_is_emoji(Py_UCS4 b);
 PyAPI_FUNC(int) PyUnicode_IsIdentifier(PyObject *s);
 
 #ifndef Py_LIMITED_API
